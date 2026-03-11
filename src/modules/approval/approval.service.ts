@@ -10,6 +10,7 @@ export class ApprovalService {
     if (!stepCode) {
       throw new Error('Código de etapa é obrigatório');
     }
-    return this.repository.findApproversByStepCode(stepCode);
+    const resRepository =  await this.repository.findApproversByStepCode(stepCode);
+    return resRepository;
   }
 }
