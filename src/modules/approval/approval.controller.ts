@@ -22,16 +22,29 @@ export class ApprovalController {
     try {
       const result = await service.syncOriginators();
       if (result) {
-        console.log(`Successfully inserted ${result} missing originators.`);
+        console.log(`Originadores incluídos com sucesso ${result}.`);
       } else {
-        console.log("No missing originators found to insert.");
+        console.log("Não há originadores para inserir nos modelos.");
       }
       return res.json(result);
     } catch (error) {
-      console.error("Error syncing originators:", error);
+      console.error("Erro ao sincronizar originadores:", error);
       return res
         .status(500)
         .json({ error: "erro ao sincronizar os originadores" });
+    }
+  }
+
+  async getStepsWithApprover(req: Request, res: Response) {
+    const service = new ApprovalService();
+    try {
+      const result = await service.getStepsWithApprover();
+      return res.json(result);
+    } catch (error) {
+      console.error("Erro ao buscar etapas com aprovadores:", error);
+      return res
+        .status(500)
+        .json({ error: "erro ao buscar etapas com aprovadores" });
     }
   }
 }
