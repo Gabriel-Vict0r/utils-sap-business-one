@@ -58,4 +58,19 @@ export class ApprovalController {
       return res.status(500).json({ error: "erro ao buscar usuários" });
     }
   }
+
+  async insertApproval(req: Request, res: Response) {
+    const service = new ApprovalService();
+    try {
+      const { stepCode, userId } = req.body;
+      const result = await service.insertApproval(
+        Number(stepCode),
+        Number(userId),
+      );
+      return res.json(result);
+    } catch (error) {
+      console.error("Erro ao inserir aprovação:", error);
+      return res.status(500).json({ error: "erro ao inserir aprovação" });
+    }
+  }
 }

@@ -50,4 +50,11 @@ export class ApprovalService {
       userCode: user.U_NAME,
     }));
   }
+
+  async insertApproval(stepCode: number, userId: number) {
+    if (!stepCode || !userId) {
+      throw new Error("Código de etapa e ID de usuário são obrigatórios");
+    }
+    return await this.repository.insertApprover(stepCode, userId);
+  }
 }

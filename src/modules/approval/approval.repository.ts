@@ -80,4 +80,23 @@ ORDER BY S."WstCode", U."U_NAME"`;
     const result = await conn.exec(query);
     return result;
   }
+
+  async insertApprover(stepCode: number, userId: number) {
+    const conn = await getConnection();
+
+    const checkStepQuery = `SELECT 1 FROM ${process.env.SCHEMA}."OWST" WHERE "WstCode" = ?`;
+    const stepExists: any = await conn.exec(checkStepQuery, [stepCode]);
+    const checkUserQuery = `SELECT 1 FROM ${process.env.SCHEMA}."OUSR" WHERE "USERID" = ? AND "Locked" = 'N'`;
+    const userExists: any = await conn.exec(checkUserQuery, [userId]);
+
+    if (stepExists.length === 0 || userExists.length === 0) {
+      throw new Error(
+        `Etapa com o código ${stepCode} não existe ou o usuário ${userId} não está ativo.`,
+      );
+    }
+
+    const query = `INSERT INTO ${process.env.SCHEMA}."WST1" ("WstCode", "UserID") VALUES (?, ?)`;
+    const result = await conn.exec(query, [stepCode, userId]);
+    return result;
+  }
 }
