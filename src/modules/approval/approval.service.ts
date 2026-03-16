@@ -1,4 +1,4 @@
-import { StepWithApprover } from "../../types/approval.interfaces";
+import { StepWithApprover, User } from "../../types/approval.interfaces";
 import { ApprovalRepository } from "./approval.repository";
 
 export class ApprovalService {
@@ -40,5 +40,14 @@ export class ApprovalService {
     const result = Object.values(steps);
     //console.log(`etapas refatoradas: ${result}`);
     return result;
+  }
+
+  async getUsers() {
+    const users = await this.repository.getUsers();
+    const remap = users as User[];
+    return remap.map((user: any) => ({
+      userId: user.USERID,
+      userCode: user.U_NAME,
+    }));
   }
 }

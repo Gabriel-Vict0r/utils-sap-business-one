@@ -10,3 +10,7 @@ export interface StepWithApproverResponse {
   USERID: number;
   Usuario: string;
 }
+export interface User {
+  userId: string;
+  userCode: string;
+}

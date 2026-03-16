@@ -47,4 +47,15 @@ export class ApprovalController {
         .json({ error: "erro ao buscar etapas com aprovadores" });
     }
   }
+
+  async getUsers(req: Request, res: Response) {
+    const service = new ApprovalService();
+    try {
+      const result = await service.getUsers();
+      return res.json(result);
+    } catch (error) {
+      console.error("Erro ao buscar usuários:", error);
+      return res.status(500).json({ error: "erro ao buscar usuários" });
+    }
+  }
 }

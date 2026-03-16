@@ -2,6 +2,7 @@ import { getConnection } from "../../database/hana";
 import {
   StepWithApprover,
   StepWithApproverResponse,
+  User,
 } from "../../types/approval.interfaces";
 
 export class ApprovalRepository {
@@ -68,7 +69,15 @@ JOIN ${process.env.SCHEMA}."WST1" M  ON M."WstCode" = S."WstCode"
 JOIN ${process.env.SCHEMA}."OUSR" U  ON U."USERID"  = M."UserID"
 ORDER BY S."WstCode", U."U_NAME"`;
     const result = await conn.exec(query);
-    //console.log(result);
+
     return result as StepWithApproverResponse[];
+  }
+
+  async getUsers() {
+    const conn = await getConnection();
+
+    const query = `SELECT "USERID", "U_NAME" FROM ${process.env.SCHEMA}."OUSR" WHERE "Locked" = 'N'`;
+    const result = await conn.exec(query);
+    return result;
   }
 }

@@ -22,4 +22,5 @@ routesAproval.get(
   approvalController.getStepsWithApprover,
 );
 
+routesAproval.get("/users", approvalController.getUsers);
 export { routesAproval };
