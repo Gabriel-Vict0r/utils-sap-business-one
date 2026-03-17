@@ -1,3 +1,5 @@
+import { throwErrorTec } from "../../logger/base";
+import { logger } from "../../logger/logger";
 import { StepWithApprover, User } from "../../types/approval.interfaces";
 import { ApprovalRepository } from "./approval.repository";
 
@@ -53,8 +55,19 @@ export class ApprovalService {
 
   async insertApproval(stepCode: number, userId: number) {
     if (!stepCode || !userId) {
+      logger.error("Código de etapa e ID de usuário são obrigatórios");
       throw new Error("Código de etapa e ID de usuário são obrigatórios");
     }
     return await this.repository.insertApprover(stepCode, userId);
+  }
+
+  async removeApproval(stepCode: number, userId: number) {
+    if (!stepCode || !userId) {
+      throwErrorTec("Código de etapa e ID de usuário são obrigatórios", null, {
+        stepCode: stepCode,
+        userId: userId,
+      });
+    }
+    return await this.repository.removeApprover(stepCode, userId);
   }
 }

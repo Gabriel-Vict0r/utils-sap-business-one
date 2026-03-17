@@ -23,4 +23,14 @@ routesAproval.get(
 );
 
 routesAproval.get("/users", approvalController.getUsers);
+
+routesAproval.post(
+  "/approvals", // Rota para inserir um novo aprovador para uma etapa
+  approvalController.insertApproval,
+);
+
+routesAproval.delete(
+  "/approvals", // Rota para remover um aprovador de uma etapa
+  approvalController.removeApproval,
+);
 export { routesAproval };

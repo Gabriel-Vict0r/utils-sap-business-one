@@ -1,7 +1,7 @@
 import express from "express";
-import {routes} from './routes';
-import {routesAproval} from '../modules/approval/approval.routes';
-import dotenv from 'dotenv';
+import { routes } from "./routes";
+import { routesAproval } from "../modules/approval/approval.routes";
+import dotenv from "dotenv";
 import { getConnection } from "../database/hana";
 
 dotenv.config();
@@ -13,8 +13,8 @@ app.use(express.json());
 app.use(routes);
 app.use(routesAproval);
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 /* TESTE DE CONEXÃO COM O HANA */
 /*

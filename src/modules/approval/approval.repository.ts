@@ -81,22 +81,69 @@ ORDER BY S."WstCode", U."U_NAME"`;
     return result;
   }
 
-  async insertApprover(stepCode: number, userId: number) {
+  async checkUserAndStep(stepCode: number, userId: number): Promise<boolean> {
     const conn = await getConnection();
-
     const checkStepQuery = `SELECT 1 FROM ${process.env.SCHEMA}."OWST" WHERE "WstCode" = ?`;
     const stepExists: any = await conn.exec(checkStepQuery, [stepCode]);
     const checkUserQuery = `SELECT 1 FROM ${process.env.SCHEMA}."OUSR" WHERE "USERID" = ? AND "Locked" = 'N'`;
     const userExists: any = await conn.exec(checkUserQuery, [userId]);
+    const result = stepExists.length > 0 && userExists.length > 0;
+    return result;
+  }
+  async insertApprover(stepCode: number, userId: number) {
+    const conn = await getConnection();
 
-    if (stepExists.length === 0 || userExists.length === 0) {
+    const stepAndUserValid = await this.checkUserAndStep(stepCode, userId);
+
+    if (!stepAndUserValid) {
       throw new Error(
         `Etapa com o código ${stepCode} não existe ou o usuário ${userId} não está ativo.`,
       );
     }
 
-    const query = `INSERT INTO ${process.env.SCHEMA}."WST1" ("WstCode", "UserID") VALUES (?, ?)`;
-    const result = await conn.exec(query, [stepCode, userId]);
-    return result;
+    try {
+      const query = `INSERT INTO ${process.env.SCHEMA}."WST1" ("WstCode", "UserID") VALUES (?, ?)`;
+      const result = await conn.exec(query, [stepCode, userId]);
+      await conn.exec("COMMIT");
+      console.log(
+        `Aprovação inserida com sucesso: Etapa ${stepCode}, Usuário ${userId}`,
+      );
+      return {
+        success: true,
+        message: `Usuário inserido na etapa com sucesso: Usuário ${userId} na etapa ${stepCode}`,
+      };
+    } catch (error) {
+      await conn.exec("ROLLBACK");
+      console.error("Erro ao inserir aprovação:", error);
+      throw error;
+    }
+  }
+
+  async removeApprover(stepCode: number, userId: number) {
+    const conn = await getConnection();
+
+    const stepAndUserValid = await this.checkUserAndStep(stepCode, userId);
+
+    if (!stepAndUserValid) {
+      throw new Error(
+        `Etapa com o código ${stepCode} não existe ou o usuário ${userId} não está ativo.`,
+      );
+    }
+    const query = `DELETE FROM ${process.env.SCHEMA}."WST1" WHERE "WstCode" = ? AND "UserID" = ?`;
+    try {
+      const result = await conn.exec(query, [stepCode, userId]);
+      await conn.exec("COMMIT");
+      console.log(
+        `Aprovação removida com sucesso: Etapa ${stepCode}, Usuário ${userId}`,
+      );
+      return {
+        success: true,
+        message: `Usuário removido da etapa com sucesso: Usuário ${userId} da etapa ${stepCode}`,
+      };
+    } catch (error) {
+      await conn.exec("ROLLBACK");
+      console.error("Erro ao remover aprovação:", error);
+      throw error;
+    }
   }
 }
