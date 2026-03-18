@@ -3,6 +3,7 @@ import { routes } from "./routes";
 import { routesAproval } from "../modules/approval/approval.routes";
 import dotenv from "dotenv";
 import { getConnection } from "../database/hana";
+import { logger } from "../logger/logger";
 
 dotenv.config();
 
