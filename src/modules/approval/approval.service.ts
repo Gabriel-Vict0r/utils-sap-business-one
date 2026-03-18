@@ -8,7 +8,7 @@ export class ApprovalService {
   async getApprovers(stepCode: number) {
     // Implementation for fetching approvers based on step code
     if (!stepCode) {
-      throw new Error("Código de etapa é obrigatório");
+      throwErrorTec("Código de etapa é obrigatório");
     }
     const resRepository =
       await this.repository.findApproversByStepCode(stepCode);
@@ -55,8 +55,7 @@ export class ApprovalService {
 
   async insertApproval(stepCode: number, userId: number) {
     if (!stepCode || !userId) {
-      logger.error("Código de etapa e ID de usuário são obrigatórios");
-      throw new Error("Código de etapa e ID de usuário são obrigatórios");
+      throwErrorTec("Código de etapa e ID de usuário são obrigatórios");
     }
     return await this.repository.insertApprover(stepCode, userId);
   }

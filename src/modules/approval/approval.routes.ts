@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { ApprovalController } from "../approval/approval.controller";
 import { routes } from "../../app/routes";
+import {
+  validateStepCode,
+  validateStepCodeUserId,
+} from "./approval.middleware";
 
 const routesAproval = Router();
 
@@ -9,7 +13,8 @@ routesAproval.get("/ping", (req, res) => {
 });
 const approvalController = new ApprovalController();
 routesAproval.get(
-  "/:stepCode/approvers", // Rota para obter os aprovadores com base no código da etapa
+  "/:stepCode/approvers",
+  validateStepCode, // Rota para obter os aprovadores com base no código da etapa
   approvalController.getApproversByStepCode,
 );
 routesAproval.post(
@@ -26,11 +31,13 @@ routesAproval.get("/users", approvalController.getUsers);
 
 routesAproval.post(
   "/approvals", // Rota para inserir um novo aprovador para uma etapa
+  validateStepCodeUserId,
   approvalController.insertApproval,
 );
 
 routesAproval.delete(
   "/approvals", // Rota para remover um aprovador de uma etapa
+  validateStepCodeUserId,
   approvalController.removeApproval,
 );
 export { routesAproval };

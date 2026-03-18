@@ -1,4 +1,5 @@
 import { getConnection } from "../../database/hana";
+import { throwErrorTec } from "../../logger/base";
 import {
   StepWithApprover,
   StepWithApproverResponse,
@@ -10,7 +11,7 @@ export class ApprovalRepository {
     const conn = await getConnection();
     const query = `SELECT U."USERID" AS "id", U."U_NAME"   AS "Usuario" FROM ${process.env.SCHEMA}."WST1" M JOIN ${process.env.SCHEMA}."OUSR" U  ON U."USERID"  = M."UserID" WHERE M."WstCode" = ?`;
     const result = await conn.exec(query, [stepCode]);
-    //console.log(result);
+
     return result;
   }
 
@@ -52,7 +53,9 @@ ORDER BY C."Modelo", C."UserID";`;
       return result;
     } catch (error) {
       await conn.exec("ROLLBACK");
-      throw error;
+      throwErrorTec("Erro ao inserir originadores faltantes", error, {
+        query: query,
+      });
     }
   }
 
@@ -96,8 +99,13 @@ ORDER BY S."WstCode", U."U_NAME"`;
     const stepAndUserValid = await this.checkUserAndStep(stepCode, userId);
 
     if (!stepAndUserValid) {
-      throw new Error(
+      throwErrorTec(
         `Etapa com o código ${stepCode} não existe ou o usuário ${userId} não está ativo.`,
+        null,
+        {
+          stepCode: stepCode,
+          userId: userId,
+        },
       );
     }
 
@@ -105,17 +113,19 @@ ORDER BY S."WstCode", U."U_NAME"`;
       const query = `INSERT INTO ${process.env.SCHEMA}."WST1" ("WstCode", "UserID") VALUES (?, ?)`;
       const result = await conn.exec(query, [stepCode, userId]);
       await conn.exec("COMMIT");
-      console.log(
+      /*console.log(
         `Aprovação inserida com sucesso: Etapa ${stepCode}, Usuário ${userId}`,
-      );
+      );*/
       return {
         success: true,
         message: `Usuário inserido na etapa com sucesso: Usuário ${userId} na etapa ${stepCode}`,
       };
     } catch (error) {
       await conn.exec("ROLLBACK");
-      console.error("Erro ao inserir aprovação:", error);
-      throw error;
+      throwErrorTec("Erro ao inserir aprovação", error, {
+        stepCode: stepCode,
+        userId: userId,
+      });
     }
   }
 
@@ -133,17 +143,19 @@ ORDER BY S."WstCode", U."U_NAME"`;
     try {
       const result = await conn.exec(query, [stepCode, userId]);
       await conn.exec("COMMIT");
-      console.log(
+      /*console.log(
         `Aprovação removida com sucesso: Etapa ${stepCode}, Usuário ${userId}`,
-      );
+      );*/
       return {
         success: true,
         message: `Usuário removido da etapa com sucesso: Usuário ${userId} da etapa ${stepCode}`,
       };
     } catch (error) {
       await conn.exec("ROLLBACK");
-      console.error("Erro ao remover aprovação:", error);
-      throw error;
+      throwErrorTec("Erro ao remover aprovação", error, {
+        stepCode: stepCode,
+        userId: userId,
+      });
     }
   }
 }
